@@ -1,0 +1,216 @@
+Airline Management System :
+1.	Objectif
+L’objectif de ce devoir est de mettre en oeuvre les bonnes pratiques et patrons de conceptions en programmation orientée objet. Il s’agit de réaliser une application de gestion de système de gestion aéroportuaire, dont le comportement global est r´eparti dans un ensemble de classes, présentées dans la figure 1.
+
+L’application doit permettre à un client de créer des aéroports, des compagnies aériennes ainsi que des vols. Le point d’entrée de l’application est le SystemManager. Chaque compagnie Airline est associé à un ensemble de vols (Flights). Un vol a un a´eroport de d´epart (origin) et un a´eroport d’arrivée (destination). L’origine et la destination ne peuvent être les mêmes.
+
+Chaque vol comprend des classes tarifaires (e.g., premi`ere classe, business) appelées flight section.
+Chaque classe tarifaire comprend des si`eges organis´es en rangs (ligne et colonne).
+
+
+1.1.	Consigne
+
+L’application doit respecter le principe du TDD, en fournissant un jeu de test cohérent et selon les sections critiques. 
+Cous devrez mettre en œuvre différents design pattern afin que l’architecture de votre application soit correcte, de plus nous vous proposons de mettre en œuvre une architecture en MVC afin de permettre à l’application de bien différencier les différents but de chaque classe. 
+
+2.	SystemManager
+
+C’est le point d’entrée de l’application. Les clients interagissent avec l’application en appelant les opérations offertes par SystemManager, ce dernier est unique et il doit pas pouvoir être appelé plus d’une fois nous vous conseillons pour cela de mettre en place un Singloton afin de garantir l’unicité de l’appel au système manager.
+
+
+
+
+Le SystemManager contient également les opérations pour créer les classes tarifaires, trouver les vols disponibles entre deux aéroports, et réserver des sièges sur un vol. Pour afficher toute l’information concernant les aéroports les compagnies et les vols, classes tarifaires et sièges, on invoque l’opération displaySystem- Details(). Dans le cadre d’une architecture MVC, chaque modèle qui permet de créer des instances, pour cela penser à utiliser des factory et des singlotons  afin de garantir un bonne structure dans votre application pour les différentes fonctions.
+
+createAirport(String n) : crée un objet de type Airport et le lie au SystemManager. L’aéroport doit avoir un code n, dont la longueur est exactement égale à 3. Deux aéroports différents ne peuvent avoir le même code.
+
+createAirline(String n) : crée une compagnie a´erienne et la lie au SystemManager. Le nom n d’une compagnie doit ˆêtre de longueur au plus ´égale `à 5. Deux compagnies différentes ne peuvent avoir le même nom.
+
+createFlight(String n,  String  orig,  String  dest,  int year,  int month,  int day,  String id) : crée un vol pour une compagnie n, en invoquant l’opération createFlight sur la classe Airline.
+
+createSection(String air, String flID, int  rows,  int  cols,  SeatClass  s)  :  cr´ee  une  sec- tion tarifaire, de classe s, pour un vol identifié par flID, associé à une compagnie air, en invoquant l’opération createSection() de la classe Airline. La section contiendra le nombre de lignes et de colonnes.
+
+findAvailableFlights(String orig, Strin dest) : trouve tous les vols pour lesquels il existe encore des sièges disponibles, entre les aéroports de départ et d’arrivée.
+
+bookSeat(String air, String fl, SeatClass s, int row, char col) : réserve le siège dont la position est indiquée par row et col (e.g. 15A), sur le vol fl de la compagnie air.
+
+displaySystemDetails() : affiche toute l’information concernant tous les objets (e.g. aéroports, com- pagnies, vols, sièges, ...) dans le système.
+
+
+
+
+Type Test	Fonction ou appliquer le test	Commentaire
+Unitaire	createAirline	Deux instances ne peuvent pas avoir le même nom
+Unitaire	createAirline	La longueur de la chaine est >=2 && <=5
+Unitaire	createSection	Il existe au maximum 3 section par vol
+Unitaire	createSection	Une section ne peux pas être vide
+Unitaire	createFlight	Un vol ne peux pas avoir la même orgine et la même destination
+Unitaire	createFlight	Deux vols ne peuvent pas être identique 
+Unitaire	createFlight	Un vol possède une origine,une destination,un horaire,une compagnie et un ID.
+
+
+1.	Airport
+
+Un objet de cette classe repr´esente un a´eroport. Il poss`ede un nom, de longueur 3 caract`eres. Un aéroport possède plusieurs blocs (A,B,C,D) et chaque bloc possède un type de vol particulier (long courrier – moyen courrier – court courrier), aucun ou plusieurs trieurs de bagages.
+
+Type Test		Commentaire
+Unitaire		Un aéoroport ne peut pas être vide
+Unitaire		Un aéroport est codifié exactement sous 3 Caractères
+Unitaire		Deux aéroports ne peuvent pas avoir le même nom si ils sont différents
+Unitaire		Un Zone ne peux pas avoir plusieurs types de vols.
+
+2.	Trieur Bagages
+
+Un objet de cette classe représente un Trieur. Celui-ci possède un identifiant unique qui le relie à sa zone, une capacité d’accueil de bagage, un horaire d’ouverture, des types de bagages à traiter (hors-format, sans fermeture, avec fermeture, …) et une vitesse de traitement des bagages. Un trieur est ouvert pendant certains horaires, si celui-ci ne peux plus traiter de bagages, ceux si sont dérouté vers d’autres trieur. Si tous les trieurs sont occupés alors le système doit attendre que le traitement soit fini. 
+
+Type Test		Commentaire
+Unitaire		Un trieur est unique.
+Unitaire		Un trieur doit comporter le nom de son bloc dans l’identifiant ainsi que son type de traitement de bagages (ALL pour tout, HF pour hors-format, …)
+Unitaire		Deux  trieurs ne peuvent pas avoir le même nom si ils sont différents
+
+
+3.	Airline
+
+Cette classe définit une compagnie aérienne. Une compagnie possède zéro ou plusieurs vols en cours. A la création d’un objet de ce type, il n’y a initialement aucun vol. 
+
+Flight  createFlight(String  orig,  String  dest,  Calendar  date,  String  id) : crée un vol pour une compagnie aérienne.
+
+Flight  findFlight(String n) : trouve un vol dont l’identifiant est n.
+
+createSection(String  flID, int rows,  int cols,  SeatClass  s) : crée une section tarifaire de classe s, pour un vol dont l’identifiant est flID. La section contiendra le nombre de lignes et de colonnes.
+ArrayList<Flight>  getAvailableFlights(Airport  orig,  Airport  dest)  :  trouve  tous  les  vols sur lesquels il existe encore des sièges disponibles, entre les a´eroports de d´epart et d’arriv´ee.
+bookFlight(String fl, SeatClass s, int row, char col) : réserve un siège dont la position est indiquée par row et col (e.g. 15A) dans la section tarifaire s, sur le vol fl.
+
+Type Test		Commentaire
+Unitaire		Un vol qui n’existe pas doit être notifier
+Unitaire		Une section est unique et ne peux pas être vide.
+Unitaire		Un vol qui n’existe pas ne peux pas avoir de réservation de siège
+Unitaire		Un vol complet de permet de Surbooking
+Unitaire		On ne peut pas créer une section si le vol n’existe pas
+Unitaire		Deux vols ne peuvent être identique 
+
+4.	Flight
+
+Cette classe définit un vol. Un vol possède un identifiant, un aéroport de départ, un aéroport d’arrivé, une date de départ, et un identifiant unique permettant d’identifier la compagnie qui opère le vol, il possède une ou 3 sections et  Un vol peut avoir différents statuts (annuler, retardé,a l’heure). Un vol possède aussi un type d’appereil (Boeing / Airbus) et son numéro série (A380 , B737 , … )
+
+getAirline():  renvoie le nom de la compagnie aérienne associer au vol
+
+getID():  renvoie l’ID du vol
+
+getOrig():  renvoie l’aéroport de départ
+
+getDest():  renvoie l’aéroport de destination
+
+getDate(): renvoie la date d’une vol
+hasSection(): renvoie vrai si et seulement si le vol possède plus d’une section.
+hasSeats(): renvoie vrai si et seulement si le vol possède encore des sièges (peu importe la section)
+
+createSection(): renvoie vrai si et seulement si le vol peut encore créer une section
+
+findSection(): Recherche une section du vol
+
+Type Test		Commentaire
+Unitaire		Un vol est unique
+Unitaire		Un vol ne peux pas avoir la même destination et la même origine
+Unitaire		Un vol possède une date
+Unitaire		Un vol possède obligatoirement une section
+
+
+
+
+
+
+5.	FlightSection
+
+Cette classe d´efinit une classe (ou section) tarifaire. Chaque section poss`ede une classe (premi`ere, affaires, ou ´economique) et au moins 1 siège. Une FlightSection possède des attributs nombre de rows et nombre de columns, afin de savoir combien de sièges elle contient et le calcul du nombre de si`eges disponibles.
+
+Une section tarifaire contient au plus 100 rang´ees de si`eges et au plus 10 si`eges par rang´ee.
+
+—	hasAvailableSeats() renvoie vrai si et seulement si la section poss`ede encore des si`eges disponibles (non r´eserv´es).
+—	bookSeat() r´eserver le premier si`ege disponible. Son utilisation est conditionn´ee `a celle de hasAvai- lableSeats().
+—	boolean bookSeat(SeatID sId) réserver le siège à l’emplacement désigné par le paramètre sID
+—	boolean UnbookSeat (SeatID sId) : annuler la réservation  du siège à l’emplacement désigné par le paramètre sID
+
+Type Test		Commentaire
+Unitaire		Une section n’est jamais vide
+Unitaire		Une section au départ possède tous ses sièges libres.
+Unitaire		Si une section est complète on ne peut plus booker de siège
+Unitaire		Si un siège est déjà réserver il faut traiter le comportement.
+Unitaire		Si un siège n’existe pas, on ne peut pas le booker
+Unitaire		
+
+
+6.	Seat
+
+Cette classe d´efinit un si`ege. Un si`ege poss`ede un identificateur, qui indique sa rang´ee (1 à 100) et sa colonne (caract`ere allant de A `a J). Il poss`ede ´egalement un statut qui indique s’il est r´eserv´e ou pas.
+
+
+getSeatNum(): renvoie le numéro du siège
+getStatus(): renvoie le statut du siège (booké ou non ).
+
+
+
+
+Type Test		Commentaire
+Unitaire		Un siège est toujours numéroté
+Unitaire		Un siège ne peux pas avoir un numéro de rang ou de colonne supérieur aux caractéristiques spécifié
+ 
+
+7.	Client de l’application
+
+Un exemple de client de cette application est fourni dans la classe ClientAMS. Ce client appelle des op´erations de la classe SystemManager.
+
+Vous ˆetes invit´es `a ´etendre cette classe client avec d’autres invocations pour tester le comportement attendu de votre application.
+1	public class Client AMS {
+2	public  s t a t i c  void  main  ( String [] args ) {
+3	System Manager res = new System Manager ();
+4	//   A i r p o r t s
+5	res . create Airport ( "DEN" );
+6	res . create Airport ( "DFW" );
+7	res . create Airport ( "LON" );
+8	res . create Airport ( "DEN" );
+9	res . create Airport ( "CDG" );
+10	res . create Airport ( "JPN" );
+11	res . create Airport ( "DEN" ); //  Pb d ’ u n i c i t e
+12	res . create Airport ( "DE" ); //  I n v a l i d e
+13	res . create Airport ( "DEH" );
+14	res . create Airport ( " DRIrdn3 " ); //  I n v a l i d e
+15
+16	//   A i r l i n e s
+17	res . create Airline ( "DELTA" );
+18	res . create Airline ( " AIRFR" );
+19	res . create Airline ( "AMER" );
+20	res . create Airline ( " JET" );
+21	res . create Airline ( "DELTA" );
+22	res . create Airline ( "SWEST" );
+23	res . create Airline ( "FRONTIER" );	//  I n v a l i d e
+24
+25	//   F l i g h t s
+26	res . create Flight ( "DELTA" , "DEN" , "LON" , 2008 , 11 , 12 , " 123 " );
+27	res . create Flight ( "DELTA" , "DEN" , "DEH" , 2009 , 8 , 9 , " 567 " );
+28	res . create Flight ( "DELTA" , "DEN" , "NCE" , 2010 , 9 , 8 , " 567 " ); //
+I n v a l i d e
+29
+30	//   S e c t i o n s
+31	res . create Section ( " JET" , " 123 " , 2 , 2 , Seat Class . economy );
+32	res . create Section ( " JET" , " 123 " , 1 , 3 , Seat Class . economy );
+33	res . create Section ( " JET" , " 123 " , 2 , 3 , Seat Class . first );
+34	res . create Section ( "DELTA" , " 123 " , 1 , 1 , Seat Class . business );
+35	res . create Section ( "DELTA" , " 123 " , 1 , 2 , Seat Class . economy );
+36	res . create Section ( "SWSERTT" , " 123 " , 5 , 5 , Seat Class . economy ); // I n v a l i d e
+37
+38	res . display System Details ();
+39
+40	res . find Available Flights ( "DEN" , "LON" );
+41
+42	res . book Seat ( "DELTA" , " 123 " , Seat Class . business , 1 , ’A ’ );
+43	res . book Seat ( "DELTA" , " 123 " , Seat Class . economy , 1 ,  ’A ’ );
+44	res . book Seat ( "DELTA" , " 123 " , Seat Class . economy , 1 ,  ’B ’ );
+45	res . book Seat ( "DELTA" , " 123 " , Seat Class . business , 1 , ’A ’ ); // Deja r e s e r v e
+46
+47	res . display System Details ();
+48
+49	res . find Available Flights ( "DEN" , "LON" );
+50	}
+51	}
+
